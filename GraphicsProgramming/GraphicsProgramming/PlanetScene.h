@@ -3,8 +3,8 @@
 // Calculates and outputs Frames Per Second (FPS) rendered.
 // Important functions are the constructor (initialising the scene), 
 // update (for process user input and updating scene objects) and render (renders scene).
-#ifndef _SCENE_H
-#define _SCENE_H
+#ifndef _PLANETSCENE_H
+#define _PLANETSCENE_H
 
 // Include GLUT, openGL, input.
 #include "glut.h"
@@ -25,15 +25,15 @@ struct Vertex
 		position = pos;
 		color = cl;
 	}
-	Vector3 position = (0.f,0.f,0.f);
+	Vector3 position = (0.f, 0.f, 0.f);
 	Vector3 color = (0.f, 0.f, 0.f);
 };
 
 
-class Scene{
+class PlanetScene {
 
 public:
-	Scene(Input *in);
+	PlanetScene(Input* in);
 	// Main render function
 	void render();
 	// Handle input function that receives delta time from parent.
@@ -53,15 +53,13 @@ protected:
 	void calculateFPS();
 
 	// draw primitive functions
-	void Scene::drawTriangle(Vertex ver1, Vertex ver2, Vertex ver3);
-	void Scene::drawStripTriangle(Vertex vertexes[6]);
-	void Scene::drawFanTriangle(Vertex vertexes[6]);
-	void Scene::drawSquareTriangle(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4, Vertex ver5, Vertex ver6);
-	void Scene::drawSquare(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4);
+	void PlanetScene::drawTriangle(Vertex ver1, Vertex ver2, Vertex ver3);
+	void PlanetScene::drawCircle(GLfloat x, GLfloat y, GLfloat z, GLfloat radius, GLint numberOfSides, Vector3 color);
+	void PlanetScene::drawSquare(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4);
 
 	// For access to user input.
 	Input* input;
-		
+
 	// For Window and frustum calculation.
 	int width, height;
 	float fov, nearPlane, farPlane;
@@ -70,7 +68,8 @@ protected:
 	int frame = 0, time, timebase = 0;
 	char fps[40];
 	char mouseText[40];
-
+	float i = 0;
 };
 
 #endif
+

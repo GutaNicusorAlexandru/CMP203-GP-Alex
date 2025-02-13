@@ -1,62 +1,22 @@
-#include "Scene.h"
+#include "PlanetScene.h"
 #include "Constants.h"
 
 // Scene constructor, initilises OpenGL
 // You should add further variables to need initilised.
-Scene::Scene(Input *in)
+PlanetScene::PlanetScene(Input* in)
 {
 	// Store pointer for input class
 	input = in;
 	initialiseOpenGL();
 
 	// Other OpenGL / render setting should be applied here.
-	
+
 
 	// Initialise scene variables
-	
+
 }
 
-void Scene::drawTriangle(Vertex ver1, Vertex ver2, Vertex ver3)
-{
-	glBegin(GL_TRIANGLES);
-		glColor3f(ver1.color.x, ver1.color.y, ver1.color.z);
-		glVertex3f(ver1.position.x, ver1.position.y, ver1.position.z);
-
-		glColor3f(ver2.color.x, ver2.color.y, ver2.color.z);
-		glVertex3f(ver2.position.x, ver2.position.y, ver2.position.z);
-
-		glColor3f(ver3.color.x, ver3.color.y, ver3.color.z);
-		glVertex3f(ver3.position.x, ver3.position.y, ver3.position.z);
-	glEnd();
-}
-
-void Scene::drawStripTriangle(Vertex vertexes[6])
-{
-	glBegin(GL_TRIANGLE_STRIP);
-
-	for (int i = 0; i < 6; i++)
-	{
-		glColor3f(vertexes[i].color.x, vertexes[i].color.y, vertexes[i].color.z);
-		glVertex3f(vertexes[i].position.x, vertexes[i].position.y, vertexes[i].position.z);
-	}
-
-	glEnd();
-}
-
-void Scene::drawFanTriangle(Vertex vertexes[6])
-{
-	glBegin(GL_TRIANGLE_FAN);
-
-	for (int i = 0; i < 6; i++)
-	{
-		glColor3f(vertexes[i].color.x, vertexes[i].color.y, vertexes[i].color.z);
-		glVertex3f(vertexes[i].position.x, vertexes[i].position.y, vertexes[i].position.z);
-	}
-
-	glEnd();
-}
-
-void Scene::drawSquareTriangle(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4, Vertex ver5, Vertex ver6)
+void PlanetScene::drawTriangle(Vertex ver1, Vertex ver2, Vertex ver3)
 {
 	glBegin(GL_TRIANGLES);
 	glColor3f(ver1.color.x, ver1.color.y, ver1.color.z);
@@ -68,20 +28,46 @@ void Scene::drawSquareTriangle(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver
 	glColor3f(ver3.color.x, ver3.color.y, ver3.color.z);
 	glVertex3f(ver3.position.x, ver3.position.y, ver3.position.z);
 	glEnd();
-
-	glBegin(GL_TRIANGLES);
-	glColor3f(ver4.color.x, ver4.color.y, ver4.color.z);
-	glVertex3f(ver4.position.x, ver4.position.y, ver4.position.z);
-
-	glColor3f(ver5.color.x, ver5.color.y, ver5.color.z);
-	glVertex3f(ver5.position.x, ver5.position.y, ver5.position.z);
-
-	glColor3f(ver6.color.x, ver6.color.y, ver6.color.z);
-	glVertex3f(ver6.position.x, ver6.position.y, ver6.position.z);
-	glEnd();
 }
 
-void Scene::drawSquare(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4)
+void PlanetScene::drawCircle(GLfloat x, GLfloat y, GLfloat z, GLfloat radius, GLint numberOfSides, Vector3 color)
+{
+	int numberOfVertices = numberOfSides + 2;
+
+	GLfloat twicePi = 2.0f * 3.14159256f;
+
+	GLfloat* circleVerticesX = new GLfloat[numberOfVertices];
+	GLfloat* circleVerticesY = new GLfloat[numberOfVertices];
+	GLfloat* circleVerticesZ = new GLfloat[numberOfVertices];
+
+	circleVerticesX[0] = x;
+	circleVerticesY[0] = y;
+	circleVerticesZ[0] = z;
+
+	for (int i = 1; i < numberOfVertices; i++)
+	{
+		circleVerticesX[i] = x + (radius * cos(i * twicePi / numberOfSides));
+		circleVerticesY[i] = y + (radius * sin(i * twicePi / numberOfSides));
+		circleVerticesZ[i] = z;
+	}
+
+	GLfloat *allCircleVertices = new GLfloat [(numberOfVertices) * 3];
+
+	for (int i = 0; i < numberOfVertices; i++)
+	{
+		allCircleVertices[i * 3] = circleVerticesX[i];
+		allCircleVertices[(i * 3) + 1] = circleVerticesY[i];
+		allCircleVertices[(i * 3) + 2] = circleVerticesZ[i];
+	}
+
+	glColor3f(color.x, color.y, color.z);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glVertexPointer(3, GL_FLOAT, 0, allCircleVertices);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, numberOfVertices);
+	glDisableClientState(GL_VERTEX_ARRAY);
+}
+
+void PlanetScene::drawSquare(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4)
 {
 	glBegin(GL_QUADS);
 	glColor3f(ver1.color.x, ver1.color.y, ver1.color.z);
@@ -98,56 +84,84 @@ void Scene::drawSquare(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4)
 	glEnd();
 }
 
-void Scene::handleInput(float dt)
+void PlanetScene::handleInput(float dt)
 {
 	// Handle user input
 }
 
-void Scene::update(float dt)
+void PlanetScene::update(float dt)
 {
 	// update scene related variables.
 
+	i += dt * 10;
 	// Calculate FPS for output
 	calculateFPS();
 }
 
-void Scene::render() {
+void PlanetScene::render() {
 
 	// Clear Color and Depth Buffers
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Reset transformations
 	glLoadIdentity();
 	// Set the camera
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	
+
 	// Render geometry/scene here -------------------------------------
-	Vertex vertexes[6];
-
-	Vertex v1(Vector3(1.0f, 1.0f, 0.0f), Colors::Red);
-	Vertex v2(Vector3(-1.0f, 1.0f, 0.0f), Colors::Blue);
-	Vertex v3(Vector3(-1.0f, -1.0f, 0.0f), Colors::Red);
-	Vertex v4(Vector3(1.0f, -1.0f, 0.0f), Colors::Green);
-
-	vertexes[0] = Vertex(Vector3(1.0f, 1.0f, 0.0f), Colors::Red);
-	vertexes[1] = Vertex(Vector3(1.5f, -1.0f, 0.0f), Colors::Blue);
-	vertexes[2] = Vertex(Vector3(2.0f, 1.0f, 0.0f), Colors::Green);
-	vertexes[3] = Vertex(Vector3(2.5f, -1.0f, 0.0f), Colors::Blue);
-	vertexes[4] = Vertex(Vector3(3.0f, 1.0f, 0.0f), Colors::Green);
-	vertexes[5] = Vertex(Vector3(3.5f, -1.0f, 0.0f), Colors::Blue);
 	
-	drawSquare(v1, v2, v3, v4);
+
+
+	glPushMatrix();
+	if (i < i + 1)
+	{
+		glRotatef(-10 * i, 0, 0, 1);
+		glTranslatef(1, 0, 0);
+	}
+	
+	drawCircle(0, 0, 0, 0.2, 100, Colors::Red);
+	glPopMatrix();
+
+	glPushMatrix();
+	if (i < i + 1)
+	{
+		glRotatef(-6 * i, 0, 0, 1);
+		glTranslatef(1.5, 0, 0);
+		glPushMatrix();
+		if (i < i + 1)
+		{
+			glRotatef(-2 * i, 0, 0, 1);
+			glTranslatef(0.5, 0, 0);
+		}
+
+		drawCircle(0, 0, 0, 0.1, 100, Colors::Black);
+		glPopMatrix();
+	}
+
+	drawCircle(0, 0, 0, 0.35, 100, Colors::Blue);
+	glPopMatrix();
+
+	glPushMatrix();
+	int j = i;
+	if (j % 20 <= 10)
+	{
+		glTranslatef(0.1 * j, 0, 0);
+	}
+
+	drawCircle(0, 0, 0, 0.5, 100, Colors::White);
+	glPopMatrix();
+	
 
 	// End render geometry --------------------------------------
 
 	// Render text, should be last object rendered.
 	renderTextOutput();
-	
+
 	// Swap buffers, after all objects are rendered.
 	glutSwapBuffers();
 }
 
-void Scene::initialiseOpenGL()
+void PlanetScene::initialiseOpenGL()
 {
 	//OpenGL settings
 	glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
@@ -158,13 +172,13 @@ void Scene::initialiseOpenGL()
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Blending function
 }
 
 // Handles the resize of the window. If the window changes size the perspective matrix requires re-calculation to match new window size.
-void Scene::resize(int w, int h) 
+void PlanetScene::resize(int w, int h)
 {
 	width = w;
 	height = h;
@@ -195,20 +209,20 @@ void Scene::resize(int w, int h)
 }
 
 // Calculates FPS
-void Scene::calculateFPS()
+void PlanetScene::calculateFPS()
 {
 	frame++;
 	time = glutGet(GLUT_ELAPSED_TIME);
 
 	if (time - timebase > 1000) {
-		sprintf_s(fps, "FPS: %4.2f", frame*1000.0 / (time - timebase));
+		sprintf_s(fps, "FPS: %4.2f", frame * 1000.0 / (time - timebase));
 		timebase = time;
 		frame = 0;
 	}
 }
 
 // Compiles standard output text including FPS and current mouse position.
-void Scene::renderTextOutput()
+void PlanetScene::renderTextOutput()
 {
 	// Render current mouse position and frames per second.
 	sprintf_s(mouseText, "Mouse: %i, %i", input->getMouseX(), input->getMouseY());
@@ -217,7 +231,7 @@ void Scene::renderTextOutput()
 }
 
 // Renders text to screen. Must be called last in render function (before swap buffers)
-void Scene::displayText(float x, float y, float r, float g, float b, char* string) {
+void PlanetScene::displayText(float x, float y, float r, float g, float b, char* string) {
 	// Get Lenth of string
 	int j = strlen(string);
 
@@ -243,6 +257,6 @@ void Scene::displayText(float x, float y, float r, float g, float b, char* strin
 	// Swap back to 3D rendering.
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(fov, ((float)width/(float)height), nearPlane, farPlane);
+	gluPerspective(fov, ((float)width / (float)height), nearPlane, farPlane);
 	glMatrixMode(GL_MODELVIEW);
 }
