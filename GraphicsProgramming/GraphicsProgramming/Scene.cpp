@@ -3,14 +3,17 @@
 
 // Scene constructor, initilises OpenGL
 // You should add further variables to need initilised.
-Scene::Scene(Input *in)
+Scene::Scene(Input *in) :
+	sphere(1.0f, 10, 5)
 {
 	// Store pointer for input class
 	input = in;
 	initialiseOpenGL();
 
 	// Other OpenGL / render setting should be applied here.
-	
+	colors.push_back(Colors::Blue.x);
+	colors.push_back(Colors::Blue.y);
+	colors.push_back(Colors::Blue.z);
 
 	// Initialise scene variables
 	
@@ -121,13 +124,19 @@ void Scene::render() {
 	// Set the camera
 	gluLookAt(0.0f, 0.0f, 6.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	
+	glVertexPointer(3, GL_FLOAT, 0, verts.data());
+	glNormalPointer(GL_FLOAT, 0, normals.data());
+	glColorPointer(3, GL_FLOAT, 0, colors.data());
+	glTexCoordPointer(2, GL_FLOAT, 0, texCoords.data());
+
+
 	// Render geometry/scene here -------------------------------------
 	Vertex vertexes[6];
 
 	Vertex v1(Vector3(1.0f, 1.0f, 0.0f), Colors::Red);
-	Vertex v2(Vector3(-1.0f, 1.0f, 0.0f), Colors::Blue);
+	Vertex v2(Vector3(1.0f, -1.0f, 0.0f), Colors::Blue);
 	Vertex v3(Vector3(-1.0f, -1.0f, 0.0f), Colors::Red);
-	Vertex v4(Vector3(1.0f, -1.0f, 0.0f), Colors::Green);
+	Vertex v4(Vector3(-1.0f, 1.0f, 0.0f), Colors::Green);
 
 	vertexes[0] = Vertex(Vector3(1.0f, 1.0f, 0.0f), Colors::Red);
 	vertexes[1] = Vertex(Vector3(1.5f, -1.0f, 0.0f), Colors::Blue);
@@ -136,9 +145,27 @@ void Scene::render() {
 	vertexes[4] = Vertex(Vector3(3.0f, 1.0f, 0.0f), Colors::Green);
 	vertexes[5] = Vertex(Vector3(3.5f, -1.0f, 0.0f), Colors::Blue);
 	
-	drawSquare(v1, v2, v3, v4);
+	//drawSquare(v1, v2, v3, v4);
 
+	float ambient[] = { 0.5f, 0.5f, 0.5f, 1 };
+	float diffuse[] = { 0.8f, 0.8f, 0.8f, 1 };
+	float specular[] = { 1.0f, 1.0f, 1.0f, 1 };
+	float shininess = 128;
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+
+	glPushMatrix();
+		sphere.draw();
+	glPopMatrix();
+	
 	// End render geometry --------------------------------------
+
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	// Render text, should be last object rendered.
 	renderTextOutput();
@@ -158,7 +185,29 @@ void Scene::initialiseOpenGL()
 	glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculations
 	glLightModelf(GL_LIGHT_MODEL_LOCAL_VIEWER, 1);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+
+	GLfloat Light_Ambient[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+	GLfloat Light_Diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat Light_Position[] = { 0.0f, 7.0f, -5.0f, 1.0f };
+	GLfloat spot_Direction[] = { 0.0f, -1.0f, 0.0f };
+
+	glLightfv(GL_LIGHT0, GL_AMBIENT, Light_Ambient);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, Light_Diffuse);
+	glLightfv(GL_LIGHT0, GL_POSITION, Light_Position);
+	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, 25.0f);
+	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_Direction);
+	glLightf(GL_LIGHT0, GL_SPOT_EXPONENT, 50.0);
+	glEnable(GL_LIGHT0);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	
 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	// Blending function
 }

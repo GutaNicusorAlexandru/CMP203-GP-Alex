@@ -15,6 +15,7 @@
 // Further includes should go here:
 #include "SOIL.h"
 #include "Vector3.h"
+#include "Cubesphere.h"
 
 
 struct Vertex
@@ -70,7 +71,13 @@ protected:
 	int frame = 0, time, timebase = 0;
 	char fps[40];
 	char mouseText[40];
+	Cubesphere sphere;
 
+	// Storage arrays
+	std::vector<float> verts;
+	std::vector<float> normals;
+	std::vector<float> colors;
+	std::vector<float> texCoords;
 };
 
 #endif
