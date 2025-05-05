@@ -17,7 +17,6 @@
 #include "Vector3.h"
 #include "Cubesphere.h"
 
-
 struct Vertex
 {
 	Vertex() {}
@@ -71,6 +70,7 @@ protected:
 	int frame = 0, time, timebase = 0;
 	char fps[40];
 	char mouseText[40];
+
 	Cubesphere sphere;
 
 	// Storage arrays

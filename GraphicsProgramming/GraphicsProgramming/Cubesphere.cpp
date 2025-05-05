@@ -31,13 +31,22 @@
 // ctor
 // The radius is circumscribed sphere
 ///////////////////////////////////////////////////////////////////////////////
-Cubesphere::Cubesphere(float radius, int subdivision, bool smooth)
+Cubesphere::Cubesphere(float radius, int subdivision, bool smooth, int numberOfColors)
 {
     if (subdivision < 1)
         subdivision = 1;
 
     vertexCountPerRow = (unsigned int)subdivision + 1;
     vertexCountPerFace = vertexCountPerRow * vertexCountPerRow;
+
+    for (int i = 0;i < numberOfColors * 4; i += 4)
+    {
+        colors.push_back(rand() % 255 + 100);
+        colors.push_back(rand() % 50 + 0);
+        colors.push_back(rand() % 255);
+
+        colors.push_back((float)(rand()) / (float)(1) - 0);
+    }
 
     if (smooth)
         buildVerticesSmooth();
@@ -103,7 +112,7 @@ void Cubesphere::reverseNormals()
 {
     std::size_t i, j;
     std::size_t count = normals.size();
-    for(i = 0, j = 3; i < count; i+=3, j+=8)
+    for(i = 0, j = 3; i < count; i+=3, j+=12)
     {
         normals[i]   *= -1;
         normals[i+1] *= -1;
@@ -118,7 +127,7 @@ void Cubesphere::reverseNormals()
     // also reverse triangle windings
     unsigned int tmp;
     count = indices.size();
-    for(i = 0; i < count; i+=3)
+    for(i = 0; i < count; i+=4)
     {
         tmp = indices[i];
         indices[i]   = indices[i+2];
@@ -294,7 +303,7 @@ void Cubesphere::buildVerticesFlat()
     // clear memory of prev arrays
     clearArrays();
 
-    unsigned int k = 0, k1, k2, i1, i2; // indices
+    unsigned int k = 0, k1, k2, kc, i1, i2; // indices
     float v1[3], v2[3], v3[3], v4[3];   // tmp vertices
     float t1[2], t2[2], t3[2], t4[2];   // texture coords
     float n[3];                         // normal vector
@@ -350,8 +359,9 @@ void Cubesphere::buildVerticesFlat()
             addTexCoords(t1, t2, t3, t4);
 
             // add indices of 2 triangles
-            addIndices(k, k+1, k+2);
-            addIndices(k+2, k+1, k+3);
+            kc = rand() % colors.size() + 0;
+            addIndices(k, k+1, k+2, kc);
+            addIndices(k+2, k+1, k+3, kc);
 
             // add line indices; top and left
             lineIndices.push_back(k);       // left
@@ -376,6 +386,7 @@ void Cubesphere::buildVerticesFlat()
         addVertex(-vertices[i], vertices[i+1], -vertices[i+2]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i], normals[i+1], -normals[i+2]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -397,6 +408,7 @@ void Cubesphere::buildVerticesFlat()
         addVertex(-vertices[i+2], vertices[i], -vertices[i+1]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i+2], normals[i], -normals[i+1]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -415,6 +427,7 @@ void Cubesphere::buildVerticesFlat()
         addVertex(-vertices[i+2], -vertices[i], vertices[i+1]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i+2], -normals[i], normals[i+1]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -436,6 +449,7 @@ void Cubesphere::buildVerticesFlat()
         addVertex(-vertices[i+2], vertices[i+1], vertices[i]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i+2], normals[i+1], normals[i]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -449,11 +463,12 @@ void Cubesphere::buildVerticesFlat()
 
     // build -Z face by swapping x=>-z, z=>x
     startIndex = vertices.size() / 3;
-    for(int i = 0, j = 0; i < vertexSize; i += 3, j += 2)
+    for (int i = 0, j = 0, k = 0; i < vertexSize; i += 3, j += 2, k += 4)
     {
         addVertex(vertices[i+2], vertices[i+1], -vertices[i]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(normals[i+2], normals[i+1], -normals[i]);
+        addColor(colors[k+3], colors[k+2], colors[k+1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -486,7 +501,7 @@ void Cubesphere::buildVerticesSmooth()
     clearArrays();
 
     float x, y, z, s, t;
-    int k = 0, k1, k2;
+    int k = 0, k1, k2, kc;
 
     // build +X face
     for(unsigned int i = 0; i < vertexCountPerRow; ++i)
@@ -508,8 +523,9 @@ void Cubesphere::buildVerticesSmooth()
             // add indices
             if(i < (vertexCountPerRow-1) && j < (vertexCountPerRow-1))
             {
-                addIndices(k1, k2, k1+1);
-                addIndices(k1+1, k2, k2+1);
+                kc = rand() % colors.size() + 0;
+                addIndices(k1, k2, k1+1, kc);
+                addIndices(k1+1, k2, k2+1, kc);
                 // lines: left and top
                 lineIndices.push_back(k1);  // left
                 lineIndices.push_back(k2);
@@ -532,6 +548,7 @@ void Cubesphere::buildVerticesSmooth()
         addVertex(-vertices[i], vertices[i+1], -vertices[i+2]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i], normals[i+1], -normals[i+2]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -553,6 +570,7 @@ void Cubesphere::buildVerticesSmooth()
         addVertex(-vertices[i+2], vertices[i], -vertices[i+1]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i+2], normals[i], -normals[i+1]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -571,6 +589,7 @@ void Cubesphere::buildVerticesSmooth()
         addVertex(-vertices[i+2], -vertices[i], vertices[i+1]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i+2], -normals[i], normals[i+1]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -592,6 +611,7 @@ void Cubesphere::buildVerticesSmooth()
         addVertex(-vertices[i+2], vertices[i+1], vertices[i]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(-normals[i+2], normals[i+1], normals[i]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -610,6 +630,7 @@ void Cubesphere::buildVerticesSmooth()
         addVertex(vertices[i+2], vertices[i+1], -vertices[i]);
         addTexCoord(texCoords[j], texCoords[j+1]);
         addNormal(normals[i+2], normals[i+1], -normals[i]);
+        addColor(colors[k + 3], colors[k + 2], colors[k + 1], colors[k]);
     }
     for(int i = 0; i < indexSize; ++i)
     {
@@ -696,6 +717,17 @@ void Cubesphere::addNormal(float nx, float ny, float nz)
     normals.push_back(nz);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// add single color to array
+///////////////////////////////////////////////////////////////////////////////
+void Cubesphere::addColor(float nr, float ng, float nb, float na)
+{
+    colors.push_back(nr);
+    colors.push_back(ng);
+    colors.push_back(nb);
+    colors.push_back(na);
+}
+
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -738,11 +770,12 @@ void Cubesphere::addTexCoords(const float t1[2], const float t2[2], const float 
 ///////////////////////////////////////////////////////////////////////////////
 // add 3 indices to array
 ///////////////////////////////////////////////////////////////////////////////
-void Cubesphere::addIndices(unsigned int i1, unsigned int i2, unsigned int i3)
+void Cubesphere::addIndices(unsigned int i1, unsigned int i2, unsigned int i3, unsigned int i4)
 {
     indices.push_back(i1);
     indices.push_back(i2);
     indices.push_back(i3);
+    indices.push_back(i4);
 }
 
 
@@ -785,6 +818,19 @@ const float* Cubesphere::getTexCoordsForFace(int faceId) const
     {
         // invalid ID, return the beginging of array
         return texCoords.data();
+    }
+}
+
+const float* Cubesphere::getColorCoordsForFace(int faceId) const
+{
+    if (faceId >= 0 && faceId <= 5)
+    {
+        return &colors[faceId * colors.size() / 6];
+    }
+    else
+    {
+        // invalid ID, return the beginging of array
+        return colors.data();
     }
 }
 

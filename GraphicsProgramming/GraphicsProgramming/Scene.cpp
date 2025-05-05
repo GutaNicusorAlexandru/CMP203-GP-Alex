@@ -4,16 +4,11 @@
 // Scene constructor, initilises OpenGL
 // You should add further variables to need initilised.
 Scene::Scene(Input *in) :
-	sphere(1.0f, 10, 5)
+	sphere(1.0f, 10, 1, 10)
 {
 	// Store pointer for input class
 	input = in;
 	initialiseOpenGL();
-
-	// Other OpenGL / render setting should be applied here.
-	colors.push_back(Colors::Blue.x);
-	colors.push_back(Colors::Blue.y);
-	colors.push_back(Colors::Blue.z);
 
 	// Initialise scene variables
 	

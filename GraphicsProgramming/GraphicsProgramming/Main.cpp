@@ -12,6 +12,9 @@
 #include "Scene.h"
 #include "Input.h"
 
+#include <random>
+#include <time.h>
+
 
 // Required variables; pointer to scene and input objects. Initialise variable used in delta time calculation.
 Scene* scene;
@@ -145,6 +148,7 @@ void processMouseButtons(int button, int state, int x, int y)
 // Initialises Input and Scene class, prior to starting Main Loop.
 int main(int argc, char **argv) 
 {
+	srand(time(NULL));
 
 	// Init GLUT and create window
 	glutInit(&argc, argv);

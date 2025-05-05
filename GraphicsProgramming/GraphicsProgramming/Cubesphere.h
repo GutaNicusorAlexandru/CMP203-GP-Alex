@@ -22,7 +22,7 @@ class Cubesphere
 {
 public:
     // ctor/dtor
-    Cubesphere(float radius = 1.0f, int subdivision = 3, bool smooth = true);
+    Cubesphere(float radius = 1.0f, int subdivision = 3, bool smooth = true, int numberOfColors = 5);
     ~Cubesphere() {}
 
     // getters/setters
@@ -68,6 +68,7 @@ public:
     const float* getVerticesForFace(int faceId) const;
     const float* getNormalsForFace(int faceId) const;
     const float* getTexCoordsForFace(int faceId) const;
+    const float* getColorCoordsForFace(int faceId) const;
     const float* getInterleavedVerticesForFace(int faceId) const;
     const unsigned int* getIndicesForFace(int faceId) const { return indices.data(); }  // always the begining of index array
 
@@ -80,11 +81,13 @@ public:
     // debug
     void printSelf() const;
 
+    // added functions
+    inline void SetColorRef(std::vector<float> colorsRef) { colors = colorsRef; };
+
 protected:
 
 private:
-    // added functions and members
-    inline void SetColorRef(std::vector<float> colorsRef) { colors = colorsRef; };
+    // added members
     std::vector<float> colors;
 
     // static functions
@@ -102,10 +105,11 @@ private:
     void addVertex(float x, float y, float z);
     void addVertices(const float v1[3], const float v2[3], const float v3[3], const float v4[3]);
     void addNormal(float nx, float ny, float nz);
+    void addColor(float nx, float ny, float nz, float na);
     void addNormals(const float n1[3], const float n2[3], const float n3[3], const float n4[3]);
     void addTexCoord(float s, float t);
     void addTexCoords(const float t1[2], const float t2[2], const float t3[2], const float t4[2]);
-    void addIndices(unsigned int i1, unsigned int i2, unsigned int i3);
+    void addIndices(unsigned int i1, unsigned int i2, unsigned int i3, unsigned int i4);
 
     // memeber vars
     float radius;                           // circumscribed radius
