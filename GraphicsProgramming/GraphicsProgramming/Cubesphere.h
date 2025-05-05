@@ -16,13 +16,12 @@
 #include <vector>
 #include <map>
 #include <cmath>
-#include <random>
 
 class Cubesphere
 {
 public:
     // ctor/dtor
-    Cubesphere(float radius = 1.0f, int subdivision = 3, bool smooth = true);
+    Cubesphere(float radius=1.0f, int subdivision=3, bool smooth=true);
     ~Cubesphere() {}
 
     // getters/setters
@@ -83,10 +82,6 @@ public:
 protected:
 
 private:
-    // added functions and members
-    inline void SetColorRef(std::vector<float> colorsRef) { colors = colorsRef; };
-    std::vector<float> colors;
-
     // static functions
     static void computeFaceNormal(const float v1[3], const float v2[3], const float v3[3], float normal[3]);
     static float computeScaleForLength(const float v[3], float length);

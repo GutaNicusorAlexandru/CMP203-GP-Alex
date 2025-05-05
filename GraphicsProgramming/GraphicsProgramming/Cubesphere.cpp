@@ -31,19 +31,21 @@
 // ctor
 // The radius is circumscribed sphere
 ///////////////////////////////////////////////////////////////////////////////
-Cubesphere::Cubesphere(float radius, int subdivision, bool smooth)
+Cubesphere::Cubesphere(float radius, int sub, bool smooth) : radius(radius), subdivision(sub), smooth(smooth), interleavedStride(32)
 {
-    if (subdivision < 1)
+    if(subdivision < 1)
         subdivision = 1;
 
     vertexCountPerRow = (unsigned int)subdivision + 1;
     vertexCountPerFace = vertexCountPerRow * vertexCountPerRow;
 
-    if (smooth)
+    if(smooth)
         buildVerticesSmooth();
     else
         buildVerticesFlat();
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // setters
@@ -158,18 +160,15 @@ void Cubesphere::draw() const
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     glVertexPointer(3, GL_FLOAT, interleavedStride, &interleavedVertices[0]);
     glNormalPointer(GL_FLOAT, interleavedStride, &interleavedVertices[3]);
     glTexCoordPointer(2, GL_FLOAT, interleavedStride, &interleavedVertices[6]);
-    glColorPointer(3, GL_FLOAT, interleavedStride, &interleavedVertices[8]);
 
     glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, indices.data());
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
 }
 
 
@@ -652,10 +651,6 @@ void Cubesphere::buildInterleavedVertices()
 
         interleavedVertices.push_back(texCoords[j]);
         interleavedVertices.push_back(texCoords[j+1]);
-
-        interleavedVertices.push_back(colors[i]);
-        interleavedVertices.push_back(colors[i+1]);
-        interleavedVertices.push_back(colors[i+2]);
     }
 }
 
