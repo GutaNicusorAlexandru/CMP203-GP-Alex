@@ -148,8 +148,6 @@ void Cubesphere::printSelf() const
               << "TexCoord Count: " << getTexCoordCount() << std::endl;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // draw a cubesphere in VertexArray mode
 // OpenGL RC must be set before calling it
@@ -165,6 +163,32 @@ void Cubesphere::draw() const
     glTexCoordPointer(2, GL_FLOAT, interleavedStride, &interleavedVertices[6]);
 
     glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, indices.data());
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// draw a cubesphere in VertexArray mode
+// with the given texture applied
+// OpenGL RC must be set before calling it
+///////////////////////////////////////////////////////////////////////////////
+void Cubesphere::draw(GLuint texture) const
+{
+    // interleaved array
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, interleavedStride, &interleavedVertices[0]);
+    glNormalPointer(GL_FLOAT, interleavedStride, &interleavedVertices[3]);
+    glTexCoordPointer(2, GL_FLOAT, interleavedStride, &interleavedVertices[6]);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, indices.data());
+
+    glBindTexture(GL_TEXTURE_2D, NULL);
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
