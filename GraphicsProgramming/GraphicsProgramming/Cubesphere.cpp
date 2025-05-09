@@ -31,28 +31,21 @@
 // ctor
 // The radius is circumscribed sphere
 ///////////////////////////////////////////////////////////////////////////////
-Cubesphere::Cubesphere(float radius, int subdivision, bool smooth, int numberOfColors)
+Cubesphere::Cubesphere(float radius, int sub, bool smooth) : radius(radius), subdivision(sub), smooth(smooth), interleavedStride(32)
 {
-    if (subdivision < 1)
+    if(subdivision < 1)
         subdivision = 1;
 
     vertexCountPerRow = (unsigned int)subdivision + 1;
     vertexCountPerFace = vertexCountPerRow * vertexCountPerRow;
 
-    for (int i = 0;i < numberOfColors * 4; i += 4)
-    {
-        colors.push_back(rand() % 255 + 100);
-        colors.push_back(rand() % 50 + 0);
-        colors.push_back(rand() % 255);
-
-        colors.push_back((float)(rand()) / (float)(1) - 0);
-    }
-
-    if (smooth)
+    if(smooth)
         buildVerticesSmooth();
     else
         buildVerticesFlat();
 }
+
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // setters
@@ -155,8 +148,6 @@ void Cubesphere::printSelf() const
               << "TexCoord Count: " << getTexCoordCount() << std::endl;
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 // draw a cubesphere in VertexArray mode
 // OpenGL RC must be set before calling it
@@ -167,18 +158,41 @@ void Cubesphere::draw() const
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
     glVertexPointer(3, GL_FLOAT, interleavedStride, &interleavedVertices[0]);
     glNormalPointer(GL_FLOAT, interleavedStride, &interleavedVertices[3]);
     glTexCoordPointer(2, GL_FLOAT, interleavedStride, &interleavedVertices[6]);
-    glColorPointer(3, GL_FLOAT, interleavedStride, &interleavedVertices[8]);
 
     glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, indices.data());
 
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// draw a cubesphere in VertexArray mode
+// with the given texture applied
+// OpenGL RC must be set before calling it
+///////////////////////////////////////////////////////////////////////////////
+void Cubesphere::draw(GLuint texture) const
+{
+    // interleaved array
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, interleavedStride, &interleavedVertices[0]);
+    glNormalPointer(GL_FLOAT, interleavedStride, &interleavedVertices[3]);
+    glTexCoordPointer(2, GL_FLOAT, interleavedStride, &interleavedVertices[6]);
+
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glDrawElements(GL_TRIANGLES, (unsigned int)indices.size(), GL_UNSIGNED_INT, indices.data());
+
+    glBindTexture(GL_TEXTURE_2D, NULL);
+
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 
@@ -673,10 +687,6 @@ void Cubesphere::buildInterleavedVertices()
 
         interleavedVertices.push_back(texCoords[j]);
         interleavedVertices.push_back(texCoords[j+1]);
-
-        interleavedVertices.push_back(colors[i]);
-        interleavedVertices.push_back(colors[i+1]);
-        interleavedVertices.push_back(colors[i+2]);
     }
 }
 

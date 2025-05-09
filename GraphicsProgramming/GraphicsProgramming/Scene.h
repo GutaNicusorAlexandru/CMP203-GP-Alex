@@ -16,19 +16,9 @@
 #include "SOIL.h"
 #include "Vector3.h"
 #include "Cubesphere.h"
-
-struct Vertex
-{
-	Vertex() {}
-	Vertex(Vector3 pos, Vector3 cl)
-	{
-		position = pos;
-		color = cl;
-	}
-	Vector3 position = (0.f,0.f,0.f);
-	Vector3 color = (0.f, 0.f, 0.f);
-};
-
+#include "Sphere.h"
+#include "Utility.h"
+#include "Camera.h"
 
 class Scene{
 
@@ -52,12 +42,9 @@ protected:
 	void renderTextOutput();
 	void calculateFPS();
 
-	// draw primitive functions
-	void Scene::drawTriangle(Vertex ver1, Vertex ver2, Vertex ver3);
-	void Scene::drawStripTriangle(Vertex vertexes[6]);
-	void Scene::drawFanTriangle(Vertex vertexes[6]);
-	void Scene::drawSquareTriangle(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4, Vertex ver5, Vertex ver6);
-	void Scene::drawSquare(Vertex ver1, Vertex ver2, Vertex ver3, Vertex ver4);
+
+	// Other functions
+	void DrawCube(float size, GLuint texture);
 
 	// For access to user input.
 	Input* input;
@@ -71,13 +58,26 @@ protected:
 	char fps[40];
 	char mouseText[40];
 
-	Cubesphere sphere;
-
 	// Storage arrays
-	std::vector<float> verts;
-	std::vector<float> normals;
-	std::vector<float> colors;
-	std::vector<float> texCoords;
+	std::vector<float>* verts = new std::vector<float>;
+	std::vector<float>* normals = new std::vector<float>;
+	std::vector<float>* texCoords = new std::vector<float>;
+	std::vector<int>* indeces = new std::vector<int>;
+
+	// Other Variables
+	bool wireframe = false;
+	float wireframeCooldown = 0;
+	bool pause = false;
+	float pauseCooldown = 0;
+	bool lightSwitch = false;
+	float lightSwitchCooldown = 0;
+	GLfloat Light_Position[4] = {20,0,20,1.f };
+	Cubesphere sphere;
+	Sphere earth;
+	float angle;
+	Utility utility;
+	Camera camera;
+	Model* spaceshipModel;
 };
 
 #endif

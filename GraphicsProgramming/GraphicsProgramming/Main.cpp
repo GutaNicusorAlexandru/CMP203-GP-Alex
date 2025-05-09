@@ -12,14 +12,21 @@
 #include "Scene.h"
 #include "Input.h"
 
-#include <random>
-#include <time.h>
-
+#define FPS 60
 
 // Required variables; pointer to scene and input objects. Initialise variable used in delta time calculation.
 Scene* scene;
 Input* input;
 int oldTimeSinceStart = 0;
+int winWidth = 1280;
+int winHeight = 720;
+
+void timer(int)
+{
+	glutPostRedisplay();
+	glutWarpPointer(winWidth / 2, winHeight / 2);
+	glutTimerFunc(1000 / FPS, timer, 0);
+};
 
 // Called when the window detects a change in size.
 // GLUT handles the window refresh, this function passes the new width and height to the
@@ -154,8 +161,9 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA | GLUT_STENCIL);
 	//glutInitWindowPosition(100, 100);
-	glutInitWindowSize(1280, 720);
+	glutInitWindowSize(winWidth, winHeight);
 	glutCreateWindow("My first triangle");
+	glutFullScreen();
 	
 	// Register callback functions for change in size and rendering.
 	glutDisplayFunc(renderScene);

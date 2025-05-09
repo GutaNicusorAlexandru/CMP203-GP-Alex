@@ -1,38 +1,39 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Cubesphere.h
-// ============
-// cube-based sphere dividing the spherical surface into 6 equal-area faces of
-// a cube (+X, -X, +Y, -Y, +Z, -Z)
-// If N=1, it is identical to a cube, which is inscribed in a sphere.
+// Sphere.h
+// ========
+// Sphere for OpenGL with (radius, sectors, stacks)
+// The min number of sectors is 2 and the min number of stacks are 2.
+// The default up axis is +Z axis. You can change the up axis with setUpAxis():
+// X=1, Y=2, Z=3.
 //
 //  AUTHOR: Song Ho Ahn (song.ahn@gmail.com)
-// CREATED: 2018-09-20
-// UPDATED: 2024-09-06
+// CREATED: 2017-11-01
+// UPDATED: 2024-07-19
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef GEOMETRY_CUBESPHERE_H
-#define GEOMETRY_CUBESPHERE_H
+#ifndef GEOMETRY_SPHERE_H
+#define GEOMETRY_SPHERE_H
 
 #include <vector>
-#include <map>
-#include <cmath>
 
-class Cubesphere
+class Sphere
 {
 public:
     // ctor/dtor
-    Cubesphere(float radius=1.0f, int subdivision=3, bool smooth=true);
-    ~Cubesphere() {}
+    Sphere(float radius=1.0f, int sectorCount=36, int stackCount=18, bool smooth=true, int up=3);
+    ~Sphere() {}
 
     // getters/setters
     float getRadius() const                 { return radius; }
+    int getSectorCount() const              { return sectorCount; }
+    int getStackCount() const               { return stackCount; }
+    int getUpAxis() const                   { return upAxis; }
+    void set(float radius, int sectorCount, int stackCount, bool smooth=true, int up=3);
     void setRadius(float radius);
-    float getSideLength() const             { return radius * 2 / sqrt(3.0f); }
-    void setSideLength(float side);
-    int getSubdivision() const              { return subdivision; }
-    void setSubdivision(int subdivision);
-    bool getSmooth() const                  { return smooth; }
+    void setSectorCount(int sectorCount);
+    void setStackCount(int stackCount);
     void setSmooth(bool smooth);
+    void setUpAxis(int up);
     void reverseNormals();
 
     // for vertex data
@@ -42,13 +43,11 @@ public:
     unsigned int getIndexCount() const      { return (unsigned int)indices.size(); }
     unsigned int getLineIndexCount() const  { return (unsigned int)lineIndices.size(); }
     unsigned int getTriangleCount() const   { return getIndexCount() / 3; }
-
-    unsigned int getVertexSize() const      { return (unsigned int)vertices.size() * sizeof(float); }   // # of bytes
+    unsigned int getVertexSize() const      { return (unsigned int)vertices.size() * sizeof(float); }
     unsigned int getNormalSize() const      { return (unsigned int)normals.size() * sizeof(float); }
     unsigned int getTexCoordSize() const    { return (unsigned int)texCoords.size() * sizeof(float); }
     unsigned int getIndexSize() const       { return (unsigned int)indices.size() * sizeof(unsigned int); }
     unsigned int getLineIndexSize() const   { return (unsigned int)lineIndices.size() * sizeof(unsigned int); }
-
     const float* getVertices() const        { return vertices.data(); }
     const float* getNormals() const         { return normals.data(); }
     const float* getTexCoords() const       { return texCoords.data(); }
@@ -61,55 +60,38 @@ public:
     int getInterleavedStride() const                { return interleavedStride; }   // should be 32 bytes
     const float* getInterleavedVertices() const     { return interleavedVertices.data(); }
 
-    // for face
-    unsigned int getVertexCountForFace() const  { return getVertexCount() / 6; }
-    unsigned int getIndexCountForFace() const { return getIndexCount() / 6; }
-    const float* getVerticesForFace(int faceId) const;
-    const float* getNormalsForFace(int faceId) const;
-    const float* getTexCoordsForFace(int faceId) const;
-    const float* getColorCoordsForFace(int faceId) const;
-    const float* getInterleavedVerticesForFace(int faceId) const;
-    const unsigned int* getIndicesForFace(int faceId) const { return indices.data(); }  // always the begining of index array
-
     // draw in VertexArray mode
-    void draw() const;
-    void drawLines(const float lineColor[4]) const;
-    void drawWithLines(const float lineColor[4]) const;
-    void drawFace(int faceId) const;    // draw only single face, valid ID is 0~5
+    void draw() const;                                  // draw surface
+    void draw(GLuint texture) const;
+    void drawLines(const float lineColor[4]) const;     // draw lines only
+    void drawWithLines(const float lineColor[4]) const; // draw surface and lines
 
     // debug
     void printSelf() const;
 
-    void draw(GLuint texture) const;
-
 protected:
 
 private:
-    // static functions
-    static void computeFaceNormal(const float v1[3], const float v2[3], const float v3[3], float normal[3]);
-    static float computeScaleForLength(const float v[3], float length);
-    static std::vector<float> getUnitPositiveX(unsigned int pointsPerRow);
-    static void scaleVertex(float v[3], float scale);
-
     // member functions
-    void clearArrays();
-    //@@void updateRadius();
-    void buildVerticesFlat();
     void buildVerticesSmooth();
+    void buildVerticesFlat();
     void buildInterleavedVertices();
+    void changeUpAxis(int from, int to);
+    void clearArrays();
     void addVertex(float x, float y, float z);
-    void addVertices(const float v1[3], const float v2[3], const float v3[3], const float v4[3]);
-    void addNormal(float nx, float ny, float nz);
-    void addColor(float nx, float ny, float nz, float na);
-    void addNormals(const float n1[3], const float n2[3], const float n3[3], const float n4[3]);
+    void addNormal(float x, float y, float z);
     void addTexCoord(float s, float t);
-    void addTexCoords(const float t1[2], const float t2[2], const float t3[2], const float t4[2]);
-    void addIndices(unsigned int i1, unsigned int i2, unsigned int i3, unsigned int i4);
+    void addIndices(unsigned int i1, unsigned int i2, unsigned int i3);
+    std::vector<float> computeFaceNormal(float x1, float y1, float z1,
+                                         float x2, float y2, float z2,
+                                         float x3, float y3, float z3);
 
     // memeber vars
-    float radius;                           // circumscribed radius
-    int subdivision;                        // # of segments of each edge line
+    float radius;
+    int sectorCount;                        // longitude, # of slices
+    int stackCount;                         // latitude, # of stacks
     bool smooth;
+    int upAxis;                             // +X=1, +Y=2, +z=3 (default)
     std::vector<float> vertices;
     std::vector<float> normals;
     std::vector<float> texCoords;
@@ -120,9 +102,6 @@ private:
     std::vector<float> interleavedVertices;
     int interleavedStride;                  // # of bytes to hop to the next vertex (should be 32 bytes)
 
-    // for face
-    unsigned int vertexCountPerRow;
-    unsigned int vertexCountPerFace;
 };
 
 #endif
