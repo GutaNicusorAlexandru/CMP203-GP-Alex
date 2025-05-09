@@ -5,8 +5,8 @@
 // You should add further variables to need initilised.
 Scene::Scene(Input* in) :
 	utility(verts, normals, texCoords, indeces),
-	sphere(1.0f, 50, 1),
-	earth(0.3f, 30, 20, 1, 2)
+	sphere(1.0f, 70, 1),
+	earth(0.3f, 50, 40, 1, 2)
 {
 	// Store pointer for input class
 	input = in;
@@ -20,14 +20,6 @@ Scene::Scene(Input* in) :
 
 void Scene::handleInput(float dt)
 {
-	// Light controls
-	if (input->isKeyDown('n')) Light_Position[1] += 1.5 * dt;
-	if (input->isKeyDown('m')) Light_Position[1] -= 1.5 * dt;
-	if (input->isKeyDown(37)) Light_Position[2] -= 1.5 * dt;
-	if (input->isKeyDown(38)) Light_Position[0] -= 1.5 * dt;
-	if (input->isKeyDown(39)) Light_Position[0] += 1.5 * dt;
-	if (input->isKeyDown(40)) Light_Position[2] += 1.5 * dt;
-
 	// Wireframe toggle
 	wireframeCooldown += dt;
 	if (input->isKeyDown('k') && wireframeCooldown > 0.2f)

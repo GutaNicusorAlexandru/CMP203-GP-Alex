@@ -104,7 +104,7 @@ private:
     void addNormals(const float n1[3], const float n2[3], const float n3[3], const float n4[3]);
     void addTexCoord(float s, float t);
     void addTexCoords(const float t1[2], const float t2[2], const float t3[2], const float t4[2]);
-    void addIndices(unsigned int i1, unsigned int i2, unsigned int i3, unsigned int i4);
+    void addIndices(unsigned int i1, unsigned int i2, unsigned int i3);
 
     // memeber vars
     float radius;                           // circumscribed radius
