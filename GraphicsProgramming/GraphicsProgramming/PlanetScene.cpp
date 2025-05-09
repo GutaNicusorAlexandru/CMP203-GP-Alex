@@ -110,6 +110,8 @@ void PlanetScene::render() {
 
 	// Render geometry/scene here -------------------------------------
 	
+	drawTriangle(Vertex(Vector3(1, 1, 0), Colors::Red), Vertex(Vector3(-1, 1, 0), Colors::Blue), Vertex(Vector3(1, -1, 0), Colors::Blue));
+
 
 
 	glPushMatrix();
